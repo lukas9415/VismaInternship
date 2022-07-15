@@ -13,7 +13,7 @@ Console.ForegroundColor = ConsoleColor.Blue;
 using (StreamReader r = new StreamReader("test.json"))
 {
     string json = r.ReadToEnd();
-    List<Meeting> itemstest = JsonConvert.DeserializeObject<List<Meeting>>(json);
+    meetings = JsonConvert.DeserializeObject<List<Meeting>>(json);
 }
 
 void menu()
@@ -234,12 +234,13 @@ void deleteMeeting()
         while (true)
         {
             Console.WriteLine("Meeting deletion.\nSelect which meeting would you want to delete");
+            Console.WriteLine("\t[0]Return to main menu\n");
             int i = 1;
             foreach (Meeting meeting in meetings)
             {
                 Console.WriteLine("\t[" + i + "]" + meeting.Name);
             }
-            Console.WriteLine("\t your choice: ");
+            Console.WriteLine("\t your choice: \t");
 
             string str = Console.ReadLine();
             int nr;
@@ -247,15 +248,38 @@ void deleteMeeting()
 
             if (isNumeric)
             {
+                if (nr == 0)
+                {
+                    Console.Clear();
+                    return;
+                }
                 if (nr <= meetings.Count && nr > 0)
                 {
-                    //Reik pridet check
-                    meetings.RemoveAt(nr - 1);
                     Console.Clear();
-                    Console.WriteLine("Meeting succesfully removed");
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-                    Console.Clear();
+                    Console.WriteLine("Currently removing meeting: " + meetings[nr-1].Name);
+                    Console.WriteLine("To be able to remove the meeting, you must enter Surname of the person who is responsible.\n");
+                    Console.WriteLine("Surname of the responsible person: \t");
+                    string surname = Console.ReadLine();
+                    if(meetings[nr-1].ResponsiblePerson.Surname == surname && meetings[nr-1].ResponsiblePerson.isResponsible == true)
+                    {
+                        meetings.RemoveAt(nr - 1);
+                        Console.Clear();
+                        Console.WriteLine("Meeting succesfully removed");
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        return;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Person that has been entered is not responsible for the meeting.\nMeeting has not been removed");
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        return;
+                    }
+
                 }
                 else
                 {
