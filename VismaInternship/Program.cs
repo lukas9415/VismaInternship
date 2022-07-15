@@ -21,6 +21,7 @@ void menu()
     //zuvim
 }
 
+// -- Main menu here
 while (true)
 {
     Console.WriteLine("\t [1] Create a new meeting");
@@ -42,6 +43,10 @@ while (true)
         case 2:
             Console.Clear();
             deleteMeeting();
+            break;
+        case 3:
+            Console.Clear();
+            addPerson();
             break;
         default:
             Console.Clear();
@@ -296,4 +301,88 @@ void deleteMeeting()
         }
 
     }
+}
+
+//Add a new person to the meeting
+void addPerson()
+{
+    Person person = new Person();
+    Console.Write("Adding a new person to a meeting. If you want to cancel, leave the name field blank and press enter.\n");
+    Console.Write("What is the first name of the person:\t");
+    string firstName = Console.ReadLine();
+    if (firstName.Length == 0)
+    {
+        Console.Clear();
+        return;
+    }
+    person.Name = firstName;
+
+    Console.Clear();
+
+    Console.Write("Adding a new person to a meeting. If you want to cancel, leave the surname field blank and press enter.\n");
+    Console.Write("What is the surname of the person:\t");
+    string lastName = Console.ReadLine();
+    if (lastName.Length == 0)
+    {
+        Console.Clear();
+        return;
+    }
+    person.Surname = lastName;
+
+    Console.Clear();
+
+
+    while (true)
+    {
+        Console.Write("Name: " + firstName + "\nSurname: " + lastName +"\n");
+        Console.WriteLine("\nSelect which meeting would you like to add the person to.");
+        Console.WriteLine("\t[0]Cancel and return to main menu\n");
+        int i = 1;
+        foreach (Meeting meeting in meetings)
+        {
+            Console.WriteLine("\t[" + i + "]" + meeting.Name);
+        }
+        Console.Write("\t your choice: \t");
+
+        string str = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(str, out nr);
+
+        if (isNumeric)
+        {
+            if (nr == 0)
+            {
+                Console.Clear();
+                return;
+            }
+            if (nr <= meetings.Count && nr > 0)
+            {
+                //________________________________________________________________________________________________
+                //Add check if the person exists already, also add a warning if it interferes with another meeting
+                Console.Clear();
+                meetings[nr-1].People.Add(person);
+                Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                Console.Clear();
+                return;
+
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Meeting does not exist, check your choice\n");
+            }
+        }
+
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("Please enter the meeting number correctly\n");
+        }
+    }
+
+
+
+    System.Console.Clear();
 }
