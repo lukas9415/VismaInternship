@@ -1,0 +1,17 @@
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\VismaInternship.exe
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\VismaInternship.deps.json
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\VismaInternship.runtimeconfig.json
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\VismaInternship.dll
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\ref\VismaInternship.dll
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\VismaInternship.pdb
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.csproj.AssemblyReference.cache
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.AssemblyInfoInputs.cache
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.AssemblyInfo.cs
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.csproj.CoreCompileInputs.cache
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.dll
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\ref\VismaInternship.dll
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.pdb
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.genruntimeconfig.cache
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship\obj\Debug\net6.0\VismaInternship.csproj.CopyComplete
