@@ -56,7 +56,7 @@ while (true)
     //Console.ReadKey();
 }
 
-//--Create a meeting, maybe add so you can exit...
+//--Create a meeting, maybe add so you can exit... (Save added)
 void createMeeting()
 {
     Meeting meeting = new Meeting();
@@ -209,20 +209,12 @@ void createMeeting()
     Console.ReadKey();
     Console.Clear();
 
-
-    //Change this for testing only rn
-    JsonSerializerSettings jss = new JsonSerializerSettings()
-    {
-        TypeNameHandling = TypeNameHandling.Auto
-    };
-    string serializedCollection = JsonConvert.SerializeObject(meetings, jss);
-
-    File.WriteAllText("test.json", serializedCollection);
-
+    //Save the added meet
+    saveToJSON();
 }
 
 
-//Only the person responsible can delete the meeting ADD THIS -------------------------------------------
+//Only the person responsible can delete the meeting
 void deleteMeeting()
 {
     //Check if there are any meetings in the system
@@ -341,6 +333,7 @@ void addPerson()
         foreach (Meeting meeting in meetings)
         {
             Console.WriteLine("\t[" + i + "]" + meeting.Name);
+            i++;
         }
         Console.Write("\t your choice: \t");
 
@@ -357,15 +350,97 @@ void addPerson()
             }
             if (nr <= meetings.Count && nr > 0)
             {
-                //________________________________________________________________________________________________
-                //Add check if the person exists already, also add a warning if it interferes with another meeting
-                Console.Clear();
-                meetings[nr-1].People.Add(person);
-                Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-                Console.Clear();
-                return;
+
+                //Check if person does not exist in a meet
+                if(meetings[nr-1].People.Exists(x => x.Name == firstName.ToString() && x.Surname == lastName.ToString()))
+                {
+                    Console.Clear();
+                    Console.WriteLine(firstName + " " + lastName + " already exists in " + meetings[nr - 1].Name);
+                    Console.WriteLine("\nPerson has not been added");
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return;
+                }
+
+                Period first = new Period();
+                Period second = new Period();
+                first.Start = meetings[1].StartDate;
+                first.End = meetings[1].EndDate;
+
+                second.Start = meetings[2].StartDate;
+                second.End = meetings[2].EndDate;
+
+                if(first.IntersectsWith(second))
+                {
+                    Console.WriteLine("Test");
+                }
+
+                //Check if intereferes with another meet
+                foreach(Meeting meeting in meetings)
+                {
+                    string name = firstName.ToString();
+                    string surname = lastName.ToString();
+                    if(/*(meetings[nr - 1].StartDate >= meeting.StartDate && meetings[nr - 1].StartDate <= meeting.EndDate && meetings[nr - 1].EndDate >= meeting.EndDate)
+                        && meetings[nr - 1].Name != meeting.Name
+                        &&*/ meeting.People.Exists(x => x.Name == name
+                        && x.Surname == surname))
+                    {
+                        //Interference warning
+                        bool interferes = true;
+                        while (interferes)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Interferes with another meeting");
+                            Console.WriteLine("Person already exists in meeting: " + meeting.Name + ", meeting starts at " + meeting.StartDate + " and ends at " + meeting.EndDate);
+                            Console.WriteLine("Selected meeting: " + meetings[nr - 1].Name + ", starts at " + meetings[nr - 1].StartDate + " and ends at " + meetings[nr - 1].EndDate);
+                            Console.Write("\nWould you still want to add the person to the selected meeting?\n");
+                            Console.WriteLine("\t [1] Yes");
+                            Console.WriteLine("\t [2] No");
+                            Console.Write("\t your choice:");
+
+                            string str1 = Console.ReadLine();
+                            int nr1;
+                            bool isNumeric1 = int.TryParse(str1, out nr1);
+
+                            switch (nr1)
+                            {
+                                case 1:
+                                    //If everything is okay add
+                                    Console.Clear();
+                                    meetings[nr - 1].People.Add(person);
+                                    Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
+                                    Console.WriteLine("Press any key to continue...");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    interferes = false;
+                                    return;
+                                    break;
+                                case 2:
+                                    Console.Clear();
+                                    Console.WriteLine("Person has not been added");
+                                    Console.WriteLine("Press any key to continue...");
+                                    Console.ReadKey();
+                                    interferes = false;
+                                    return;
+                                    break;
+                                default:
+                                    Console.Clear();
+                                    Console.WriteLine("Please check your choice and try again\n");
+                                    break;
+                            }
+                        }
+                    }
+
+                        //If everything is okay add
+                        Console.Clear();
+                        meetings[nr - 1].People.Add(person);
+                        Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        return;
+                }
 
             }
             else
@@ -385,4 +460,17 @@ void addPerson()
 
 
     System.Console.Clear();
+}
+
+//Save data to json
+void saveToJSON()
+{
+    //Change this for testing only rn
+    JsonSerializerSettings jss = new JsonSerializerSettings()
+    {
+        TypeNameHandling = TypeNameHandling.Auto
+    };
+    string serializedCollection = JsonConvert.SerializeObject(meetings, jss);
+
+    File.WriteAllText("test.json", serializedCollection);
 }
