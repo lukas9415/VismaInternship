@@ -363,7 +363,8 @@ void addPerson()
                     return;
                 }
 
-                Period first = new Period();
+                //Test zone
+/*                Period first = new Period();
                 Period second = new Period();
                 first.Start = meetings[1].StartDate;
                 first.End = meetings[1].EndDate;
@@ -374,9 +375,11 @@ void addPerson()
                 if(first.IntersectsWith(second))
                 {
                     Console.WriteLine("Test");
-                }
+                }*/
 
                 //Check if intereferes with another meet
+
+                //-- ADD CHECK WITH PERIOD CLASS
                 foreach(Meeting meeting in meetings)
                 {
                     string name = firstName.ToString();
@@ -432,15 +435,17 @@ void addPerson()
                         }
                     }
 
-                        //If everything is okay add
-                        Console.Clear();
-                        meetings[nr - 1].People.Add(person);
-                        Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
-                        Console.Clear();
-                        return;
                 }
+
+
+                //If everything is okay add
+                Console.Clear();
+                meetings[nr - 1].People.Add(person);
+                Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                Console.Clear();
+                return;
 
             }
             else
