@@ -1,0 +1,5 @@
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship.Tests\obj\Debug\net6.0\VismaInternship.Tests.csproj.AssemblyReference.cache
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship.Tests\obj\Debug\net6.0\VismaInternship.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship.Tests\obj\Debug\net6.0\VismaInternship.Tests.AssemblyInfoInputs.cache
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship.Tests\obj\Debug\net6.0\VismaInternship.Tests.AssemblyInfo.cs
+C:\Users\Lukas\source\repos\VismaInternship\VismaInternship.Tests\obj\Debug\net6.0\VismaInternship.Tests.csproj.CoreCompileInputs.cache

@@ -10,16 +10,13 @@ Console.Title = "VismaInternship";
 Console.ForegroundColor = ConsoleColor.Blue;
 // ________________________________________________________
 
-using (StreamReader r = new StreamReader("test.json"))
+// Load data from JSON
+using (StreamReader r = new StreamReader("MeetingData.json"))
 {
     string json = r.ReadToEnd();
     meetings = JsonConvert.DeserializeObject<List<Meeting>>(json);
 }
 
-void menu()
-{
-    //zuvim
-}
 
 // -- Main menu here
 while (true)
@@ -28,8 +25,8 @@ while (true)
     Console.WriteLine("\t [2] Delete a meeeting");
     Console.WriteLine("\t [3] Add a person to the meeting");
     Console.WriteLine("\t [4] Remove a person from the meeting");
-    Console.WriteLine("\t [5] List all meetings");
-    Console.WriteLine("\t your choice: ");
+    Console.WriteLine("\t [5] List all meetings\n");
+    Console.Write("\t your choice: ");
     string str = Console.ReadLine();
     int nr;
     bool isNumeric = int.TryParse(str, out nr);
@@ -47,6 +44,14 @@ while (true)
         case 3:
             Console.Clear();
             addPerson();
+            break;
+        case 4:
+            Console.Clear();
+            removePerson();
+            break;
+        case 5:
+            Console.Clear();
+            listAllMeetings();
             break;
         default:
             Console.Clear();
@@ -214,7 +219,7 @@ void createMeeting()
 }
 
 
-//Only the person responsible can delete the meeting
+//Only the person responsible can delete the meeting... (Save added)
 void deleteMeeting()
 {
     //Check if there are any meetings in the system
@@ -236,6 +241,7 @@ void deleteMeeting()
             foreach (Meeting meeting in meetings)
             {
                 Console.WriteLine("\t[" + i + "]" + meeting.Name);
+                i++;
             }
             Console.WriteLine("\t your choice: \t");
 
@@ -261,6 +267,9 @@ void deleteMeeting()
                     {
                         meetings.RemoveAt(nr - 1);
                         Console.Clear();
+                        
+                        //Save data to json
+                        saveToJSON();
                         Console.WriteLine("Meeting succesfully removed");
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
@@ -295,7 +304,7 @@ void deleteMeeting()
     }
 }
 
-//Add a new person to the meeting
+//Add a new person to the meeting... (Save added)
 void addPerson()
 {
     Person person = new Person();
@@ -378,16 +387,21 @@ void addPerson()
                 }*/
 
                 //Check if intereferes with another meet
-
-                //-- ADD CHECK WITH PERIOD CLASS
                 foreach(Meeting meeting in meetings)
                 {
                     string name = firstName.ToString();
                     string surname = lastName.ToString();
-                    if(/*(meetings[nr - 1].StartDate >= meeting.StartDate && meetings[nr - 1].StartDate <= meeting.EndDate && meetings[nr - 1].EndDate >= meeting.EndDate)
-                        && meetings[nr - 1].Name != meeting.Name
-                        &&*/ meeting.People.Exists(x => x.Name == name
-                        && x.Surname == surname))
+
+                    Period first = new Period();
+                    Period second = new Period();
+
+                    first.Start = meetings[nr - 1].StartDate;
+                    first.End = meetings[nr - 1].EndDate;
+
+                    second.Start = meeting.StartDate;
+                    second.End = meeting.EndDate;
+
+                    if(first.IntersectsWith(second) && meetings[nr - 1].Name != meeting.Name && meeting.People.Exists(x => x.Name == name && x.Surname == surname))
                     {
                         //Interference warning
                         bool interferes = true;
@@ -412,6 +426,9 @@ void addPerson()
                                     //If everything is okay add
                                     Console.Clear();
                                     meetings[nr - 1].People.Add(person);
+
+                                    //Save data to JSON
+                                    saveToJSON();
                                     Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
                                     Console.WriteLine("Press any key to continue...");
                                     Console.ReadKey();
@@ -424,6 +441,7 @@ void addPerson()
                                     Console.WriteLine("Person has not been added");
                                     Console.WriteLine("Press any key to continue...");
                                     Console.ReadKey();
+                                    Console.Clear();
                                     interferes = false;
                                     return;
                                     break;
@@ -441,6 +459,9 @@ void addPerson()
                 //If everything is okay add
                 Console.Clear();
                 meetings[nr - 1].People.Add(person);
+
+                //Save data to JSON
+                saveToJSON();
                 Console.WriteLine(firstName + " " + lastName + " has succesfully been added to: " + meetings[nr - 1].Name);
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
@@ -467,6 +488,764 @@ void addPerson()
     System.Console.Clear();
 }
 
+//Remove a person from a meeting... (Save added)
+void removePerson()
+{
+    while (true)
+    {
+        Console.WriteLine("Person deletion.\nSelect which meeting to delete from");
+        Console.WriteLine("\t[0]Return to main menu\n");
+        int i = 1;
+        foreach (Meeting meeting in meetings)
+        {
+            Console.WriteLine("\t[" + i + "]" + meeting.Name);
+            i++;
+        }
+        Console.WriteLine("\t your choice: \t");
+
+        string str = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(str, out nr);
+
+        if (isNumeric)
+        {
+            if (nr == 0)
+            {
+                Console.Clear();
+                return;
+            }
+            if (nr <= meetings.Count && nr > 0)
+            {
+                while (true)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Selected meeting: " + meetings[nr - 1].Name);
+                    Console.WriteLine("\nAll of the available people in the meeting:\n");
+                    Console.WriteLine("\t[0]Return to main menu\n");
+
+                    int j = 1;
+                    foreach (Person person in meetings[nr - 1].People)
+                    {
+                        Console.WriteLine("\t[" + j + "]" + person.Name + " " + person.Surname);
+                        j++;
+                    }
+                    Console.WriteLine("\t your choice: \t");
+
+                    string str1 = Console.ReadLine();
+                    int nr1;
+                    bool isNumeric1 = int.TryParse(str1, out nr1);
+
+                    if (isNumeric1)
+                    {
+                        if(nr1==0)
+                        {
+                            Console.Clear();
+                            return;
+                        }
+                        if(nr1 <= meetings[nr-1].People.Count && nr1 >0)
+                        {
+                            //Need to add check if is responsible
+                            if(meetings[nr-1].People[nr1-1].isResponsible)
+                            {
+                                Console.Clear();
+                                Console.WriteLine(meetings[nr - 1].People[nr1-1].Name + " " + meetings[nr - 1].People[nr1-1].Surname + " is responsible for the meeting, he cannot be removed.");
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                                Console.Clear();
+                                return;
+                            }
+
+                            //Removes
+                            meetings[nr - 1].People.RemoveAt(nr1 - 1);
+
+                            //Save data to JSON
+                            saveToJSON();
+                            Console.Clear();
+                            Console.WriteLine("Person succesfully removed.");
+                            Console.WriteLine("Press any key to continue...");
+                            Console.ReadKey();
+                            Console.Clear();
+                            return;
+                        }
+
+                    }
+
+                }
+
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Meeting does not exist, check your choice\n");
+            }
+        }
+
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("Please enter the meeting number correctly\n");
+        }
+    }
+}
+
+//List all meetings/filter
+void listAllMeetings()
+{
+    while (true)
+    {
+        Console.WriteLine("View meetings, select an option:\n");
+        Console.WriteLine("\t [1] List all available");
+        Console.WriteLine("\t [2] Filter by description");
+        Console.WriteLine("\t [3] Filter by responsible person");
+        Console.WriteLine("\t [4] Filter by category");
+        Console.WriteLine("\t [5] Filter by type");
+        Console.WriteLine("\t [6] Filter by dates");
+        Console.WriteLine("\t [7] Filter by the number of attendees\n");
+        Console.WriteLine("\t [8] Exit to main menu");
+        Console.Write("\t your choice: ");
+        string str = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(str, out nr);
+
+        switch (nr)
+        {
+            case 1:
+                Console.Clear();
+                listAllAvailable();
+                break;
+            case 2:
+                Console.Clear();
+                filterByDescription();
+                break;
+            case 3:
+                Console.Clear();
+                filterByResponsible();
+                break;
+            case 4:
+                Console.Clear();
+                filterByCategory();
+                break;
+            case 5:
+                Console.Clear();
+                filterByType();
+                break;
+            case 6:
+                Console.Clear();
+                filterByDate();
+                break;
+            case 7:
+                Console.Clear();
+                filterByNumberOfAttendees();
+                break;
+            case 8:
+                Console.Clear();
+                return;
+            default:
+                Console.Clear();
+                Console.WriteLine("Option does not exist\n");
+                break;
+        }
+        //Console.ReadKey();
+    }
+}
+
+//View all meetings
+void listAllAvailable()
+{
+    Console.WriteLine("All of the available meets\n");
+    foreach(Meeting meeting in meetings)
+    {
+        Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+        Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+        Console.WriteLine("\tDescription: \t" + meeting.Description);
+        Console.WriteLine("\tCategory: \t" + meeting.Category);
+        Console.WriteLine("\tType: \t" + meeting.Type);
+        Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+        Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+        Console.WriteLine("\n\tPeople in the meeting: \t");
+        foreach(Person person in meeting.People)
+        {
+            Console.WriteLine("\t" + person.Name + " " + person.Surname);
+        }
+        Console.WriteLine("---------------------------------------------------------------------------");
+    }
+    Console.WriteLine("Press any key to continue...");
+    Console.ReadKey();
+    Console.Clear();
+    return;
+}
+
+//Filter by description
+void filterByDescription()
+{
+    List<Meeting> filteredMeetings = new List<Meeting>();
+
+    Console.Write("Enter what description would you want to filter by (Leave blank to return):\t");
+    string filter = Console.ReadLine();
+
+    if(filter.Count() > 0)
+    {
+        foreach (Meeting meeting in meetings)
+        {
+            if (meeting.Description.Contains(filter))
+            {
+                filteredMeetings.Add(meeting);
+            }
+        }
+
+        if(filteredMeetings.Count() > 0)
+        {
+            Console.Clear();
+            Console.WriteLine("Meetings that have: " + filter + " in their description\n");
+            foreach(Meeting meeting in filteredMeetings)
+            {
+                Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+                Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+                Console.WriteLine("\tDescription: \t" + meeting.Description);
+                Console.WriteLine("\tCategory: \t" + meeting.Category);
+                Console.WriteLine("\tType: \t" + meeting.Type);
+                Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+                Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+                Console.WriteLine("\n\tPeople in the meeting: \t");
+                foreach (Person person in meeting.People)
+                {
+                    Console.WriteLine("\t" + person.Name + " " + person.Surname);
+                }
+                Console.WriteLine("---------------------------------------------------------------------------");
+            }
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            return;
+        }
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("No meetings with selected description exist");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            return;
+        }
+
+    }
+    else
+    {
+        Console.Clear();
+        return;
+    }
+
+}
+
+//Filter by responsible person
+void filterByResponsible()
+{
+    List<Meeting> filteredMeetings = new List<Meeting>();
+
+    Console.Write("Enter the name responsible you would want to filter by (Leave blank to return):\t");
+    string name = Console.ReadLine();
+    if (name == "")
+    {
+        Console.Clear();
+        return;
+    }
+    Console.Clear();
+    Console.Write("Enter the surname responsible you would want to filter by (Leave blank to return):\t");
+    string surname = Console.ReadLine();
+    if (surname == "")
+    {
+        Console.Clear();
+        return;
+    }
+    Console.Clear();
+
+        foreach (Meeting meeting in meetings)
+        {
+            if (meeting.ResponsiblePerson.Name == name && meeting.ResponsiblePerson.Surname == surname)
+            {
+                filteredMeetings.Add(meeting);
+            }
+        }
+
+        if (filteredMeetings.Count() > 0)
+        {
+            Console.Clear();
+            Console.WriteLine("Meetings with: " + name + " "+ surname +" being responsible\n");
+            foreach (Meeting meeting in filteredMeetings)
+            {
+                Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+                Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+                Console.WriteLine("\tDescription: \t" + meeting.Description);
+                Console.WriteLine("\tCategory: \t" + meeting.Category);
+                Console.WriteLine("\tType: \t" + meeting.Type);
+                Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+                Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+                Console.WriteLine("\n\tPeople in the meeting: \t");
+                foreach (Person person in meeting.People)
+                {
+                    Console.WriteLine("\t" + person.Name + " " + person.Surname);
+                }
+                Console.WriteLine("---------------------------------------------------------------------------");
+            }
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            return;
+        }
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("No meetings with selected responsible person exist");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            return;
+        }
+
+}
+
+//Filter by category
+void filterByCategory()
+{
+    List<Meeting> filteredMeetings = new List<Meeting>();
+    bool categorySelect = true;
+    string category = "";
+
+    while (categorySelect)
+    {
+        Console.WriteLine("\tAvailable categories:\n");
+        Console.WriteLine("\t [1] CodeMonkey");
+        Console.WriteLine("\t [2] Hub");
+        Console.WriteLine("\t [3] Short");
+        Console.WriteLine("\t [4] TeamBuilding");
+        Console.WriteLine("\t [5] Exit to main menu");
+        Console.Write("\t your choice: ");
+        string str = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(str, out nr);
+
+        switch (nr)
+        {
+            case 1:
+                Console.Clear();
+                category = "CodeMonkey";
+                categorySelect = false;
+                break;
+            case 2:
+                Console.Clear();
+                category = "Hub";
+                categorySelect = false;
+                break;
+            case 3:
+                Console.Clear();
+                category = "Short";
+                categorySelect = false;
+                break;
+            case 4:
+                Console.Clear();
+                category = "TeamBuilding";
+                categorySelect = false;
+                break;
+            case 5:
+                Console.Clear();
+                return;
+            default:
+                Console.Clear();
+                Console.WriteLine("Option does not exist\n");
+                break;
+        }
+    }
+
+
+
+        foreach (Meeting meeting in meetings)
+        {
+            if (meeting.Category == category)
+            {
+                filteredMeetings.Add(meeting);
+            }
+        }
+
+        if (filteredMeetings.Count() > 0)
+        {
+            Console.Clear();
+            Console.WriteLine("Meetings with category: " + category + "\n");
+            foreach (Meeting meeting in filteredMeetings)
+            {
+                Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+                Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+                Console.WriteLine("\tDescription: \t" + meeting.Description);
+                Console.WriteLine("\tCategory: \t" + meeting.Category);
+                Console.WriteLine("\tType: \t" + meeting.Type);
+                Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+                Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+                Console.WriteLine("\n\tPeople in the meeting: \t");
+                foreach (Person person in meeting.People)
+                {
+                    Console.WriteLine("\t" + person.Name + " " + person.Surname);
+                }
+                Console.WriteLine("---------------------------------------------------------------------------");
+            }
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            return;
+        }
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("No meetings with selected category exist");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            return;
+        }
+}
+
+//Filter by type
+void filterByType()
+{
+    List<Meeting> filteredMeetings = new List<Meeting>();
+    bool typeSelect = true;
+    string type = "";
+
+    while (typeSelect)
+    {
+        Console.WriteLine("\tAvailable types:\n");
+        Console.WriteLine("\t [1] Live");
+        Console.WriteLine("\t [2] InPerson\n");
+        Console.WriteLine("\t [3] Exit to main menu");
+        Console.Write("\t your choice: ");
+        string str = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(str, out nr);
+
+        switch (nr)
+        {
+            case 1:
+                Console.Clear();
+                type = "Live";
+                typeSelect = false;
+                break;
+            case 2:
+                Console.Clear();
+                type = "InPerson";
+                typeSelect = false;
+                break;
+            case 3:
+                Console.Clear();
+                return;
+            default:
+                Console.Clear();
+                Console.WriteLine("Option does not exist\n");
+                break;
+        }
+    }
+
+
+
+    foreach (Meeting meeting in meetings)
+    {
+        if (meeting.Type == type)
+        {
+            filteredMeetings.Add(meeting);
+        }
+    }
+
+    if (filteredMeetings.Count() > 0)
+    {
+        Console.Clear();
+        Console.WriteLine("Meetings with type: " + type + "\n");
+        foreach (Meeting meeting in filteredMeetings)
+        {
+            Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+            Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+            Console.WriteLine("\tDescription: \t" + meeting.Description);
+            Console.WriteLine("\tCategory: \t" + meeting.Category);
+            Console.WriteLine("\tType: \t" + meeting.Type);
+            Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+            Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+            Console.WriteLine("\n\tPeople in the meeting: \t");
+            foreach (Person person in meeting.People)
+            {
+                Console.WriteLine("\t" + person.Name + " " + person.Surname);
+            }
+            Console.WriteLine("---------------------------------------------------------------------------");
+        }
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
+        Console.Clear();
+        return;
+    }
+    else
+    {
+        Console.Clear();
+        Console.WriteLine("No meetings with selected type exist");
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
+        Console.Clear();
+        return;
+    }
+}
+
+//Filter by date
+void filterByDate()
+{
+    DateTime startDate = new DateTime(0);
+    DateTime endDate = new DateTime(0);
+
+    List<Meeting> filteredMeetings = new List<Meeting>();
+
+    bool dateSelect = true;
+
+    while (dateSelect)
+    {
+        Console.WriteLine("\tFilter by:\n");
+        Console.WriteLine("\t [1] Starting from date");
+        Console.WriteLine("\t [2] Between two dates\n");
+        Console.WriteLine("\t [3] Exit to main menu");
+        Console.Write("\t your choice: ");
+        string str = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(str, out nr);
+
+        switch (nr)
+        {
+            //Starting from
+            case 1:
+                Console.Clear();
+                bool checkDateCase1 = false;
+                {
+                    while (checkDateCase1 == false)
+                    {
+                        //Start date select
+                        Console.Write("Enter date from which you want to see the meetings (YYYY-MM-dd format): ");
+                        string date = Console.ReadLine();
+                        if (DateTime.TryParse(date, out startDate) == true)
+                        {
+                            checkDateCase1 = true;
+                        }
+                        else
+                        {
+                            System.Console.Clear();
+                            Console.WriteLine("Wrong date format\n");
+                        }
+                    }
+                }
+
+                foreach (Meeting meeting in meetings)
+                {
+                    if (meeting.StartDate >= startDate)
+                    {
+                        filteredMeetings.Add(meeting);
+                    }
+                }
+
+                if (filteredMeetings.Count() > 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Meetings that will happen starting from " + startDate.ToString("d") + "\n");
+                    foreach (Meeting meeting in filteredMeetings)
+                    {
+                        Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+                        Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+                        Console.WriteLine("\tDescription: \t" + meeting.Description);
+                        Console.WriteLine("\tCategory: \t" + meeting.Category);
+                        Console.WriteLine("\tType: \t" + meeting.Type);
+                        Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+                        Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+                        Console.WriteLine("\n\tPeople in the meeting: \t");
+                        foreach (Person person in meeting.People)
+                        {
+                            Console.WriteLine("\t" + person.Name + " " + person.Surname);
+                        }
+                        Console.WriteLine("---------------------------------------------------------------------------");
+                    }
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("No meetings starting from " + startDate.ToString("d"));
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return;
+                }
+                dateSelect = false;
+                break;
+
+            //Between two dates
+            case 2:
+                Console.Clear();
+                bool checkStartDate = false;
+                {
+                    while (checkStartDate == false)
+                    {
+                        //Start date select
+                        Console.Write("Enter the start date (YYYY-MM-dd format): ");
+                        string date = Console.ReadLine();
+                        if (DateTime.TryParse(date, out startDate) == true)
+                        {
+                            checkStartDate = true;
+                        }
+                        else
+                        {
+                            System.Console.Clear();
+                            Console.WriteLine("Wrong date format\n");
+                        }
+                    }
+                }
+
+                Console.Clear();
+                bool checkEndDate = false;
+                {
+                    while (checkEndDate == false)
+                    {
+                        //Start date select
+                        Console.Write("Enter the end date (YYYY-MM-dd format): ");
+                        string date = Console.ReadLine();
+                        if (DateTime.TryParse(date, out endDate) == true)
+                        {
+                            checkEndDate = true;
+                        }
+                        else
+                        {
+                            System.Console.Clear();
+                            Console.WriteLine("Wrong date format\n");
+                        }
+                    }
+                }
+
+                foreach (Meeting meeting in meetings)
+                {
+                    if (meeting.StartDate >= startDate && meeting.EndDate <= endDate)
+                    {
+                        filteredMeetings.Add(meeting);
+                    }
+                }
+
+                if (filteredMeetings.Count() > 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Meetings that will happen between " + startDate.ToString("d") + " and " + endDate.ToString("d") +"\n");
+                    foreach (Meeting meeting in filteredMeetings)
+                    {
+                        Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+                        Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+                        Console.WriteLine("\tDescription: \t" + meeting.Description);
+                        Console.WriteLine("\tCategory: \t" + meeting.Category);
+                        Console.WriteLine("\tType: \t" + meeting.Type);
+                        Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+                        Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+                        Console.WriteLine("\n\tPeople in the meeting: \t");
+                        foreach (Person person in meeting.People)
+                        {
+                            Console.WriteLine("\t" + person.Name + " " + person.Surname);
+                        }
+                        Console.WriteLine("---------------------------------------------------------------------------");
+                    }
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("No meetings between " + startDate.ToString("d") + " and " + endDate.ToString("d"));
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return;
+                }
+                dateSelect = false;
+                break;
+            case 3:
+                Console.Clear();
+                return;
+            default:
+                Console.Clear();
+                Console.WriteLine("Option does not exist\n");
+                break;
+        }
+    }
+}
+
+//Filter by number of attendees
+void filterByNumberOfAttendees()
+{
+    List<Meeting> filteredMeetings = new List<Meeting>();
+
+    while (true)
+    {
+        Console.Write("How many minimum people should be in the meeting (Leave blank to return):\t");
+
+        string filter = Console.ReadLine();
+        int nr;
+        bool isNumeric = int.TryParse(filter, out nr);
+        if (!isNumeric)
+        {
+            Console.Clear();
+            Console.WriteLine("Please enter a correct number\n");
+        }
+        if (filter.Count() > 0)
+        {
+            foreach (Meeting meeting in meetings)
+            {
+                if (meeting.People.Count >= nr)
+                {
+                    filteredMeetings.Add(meeting);
+                }
+            }
+
+            if (filteredMeetings.Count() > 0)
+            {
+                Console.Clear();
+                Console.WriteLine("Meetings that have over " + filter + " people\n");
+                foreach (Meeting meeting in filteredMeetings)
+                {
+                    Console.WriteLine("\tMeeting name: \t" + meeting.Name);
+                    Console.WriteLine("\tResponsible person: \t" + meeting.ResponsiblePerson.Name + " " + meeting.ResponsiblePerson.Surname);
+                    Console.WriteLine("\tDescription: \t" + meeting.Description);
+                    Console.WriteLine("\tCategory: \t" + meeting.Category);
+                    Console.WriteLine("\tType: \t" + meeting.Type);
+                    Console.WriteLine("\tStart Date: \t" + meeting.StartDate.ToString("g"));
+                    Console.WriteLine("\tEnd Date: \t" + meeting.EndDate.ToString("g"));
+                    Console.WriteLine("\n\tPeople in the meeting: \t");
+                    foreach (Person person in meeting.People)
+                    {
+                        Console.WriteLine("\t" + person.Name + " " + person.Surname);
+                    }
+                    Console.WriteLine("---------------------------------------------------------------------------");
+                }
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                Console.Clear();
+                return;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("No meetings with over " + nr + " people exist");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                Console.Clear();
+                return;
+            }
+
+        }
+        else
+        {
+            Console.Clear();
+            return;
+        }
+    }
+}
+
 //Save data to json
 void saveToJSON()
 {
@@ -477,5 +1256,5 @@ void saveToJSON()
     };
     string serializedCollection = JsonConvert.SerializeObject(meetings, jss);
 
-    File.WriteAllText("test.json", serializedCollection);
+    File.WriteAllText("MeetingData.json", serializedCollection);
 }
